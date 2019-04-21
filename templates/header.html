@@ -1,0 +1,24 @@
+<div class="header">
+    <div class="row">
+      <div class="col-6">
+            {% if session['logged_in'] == True %}
+                  Welcome back, {{ session['user_name'] }}!
+            {% else %}
+                  Welcome to Book-Thing!
+            {% endif %}
+            
+      </div>
+      <div class="col-3">
+            {% if session['logged_in'] == True %}
+            Search
+            {% endif %}
+      </div>
+      <div class="col-3">
+            {% if session['logged_in'] == True %}
+            <a href={{ url_for('logout') }}>Logout</a>
+            {% else %}
+            <a href={{ url_for('registration') }}>Register</a>
+            {% endif %}
+      </div>
+    </div>
+</div>
