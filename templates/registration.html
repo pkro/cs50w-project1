@@ -1,7 +1,7 @@
 {% extends "layout.html" %} {%block title %}Register{%endblock%} 
 {%block body%}
 
-{% if error != None %}
+{% if errors != None %}
     <div class="alert-warning">
         <ul>
             {% for err in errors %}

@@ -1,7 +1,12 @@
 {% extends "layout.html" %}
 
-{%block title %}Login{%endblock%}
+{%block title %}Search results{%endblock%}
 
 {%block body%}
     Results from book search
+<ul>
+    {% for book in books %}
+    <li>{{ book.title }}</li>
+    {% endfor %}
+</ul>
 {%endblock%}
