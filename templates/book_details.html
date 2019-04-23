@@ -1,28 +1,24 @@
 {% extends "layout.html" %}
 
-{%block title %}Search results{%endblock%}
+{%block title %}Book details - {{ book.title }} by {{ book.author }} {%endblock%}
 
 {%block body%}
-    <h3>Results from book search</h3>
-
-    <ul class="list-group">
-    {% for book in books %}
     
+    <ul class="list-group">
         <li class="list-group-item">
-            <div class="result title">
-                <a href="{{ url_for('book', book_id=book.id) }}">{{ book.title }} - click for details and reviews</a>
-              </nav></div>
+            <div class="result title">{{ book.title }}</div>
             <div class="result author">{{ book.author }}, {{ book.year }}</div>
-            <div class="result isbn">ISBN: {{ book.isbn }}</div>
+            <div class="result isbn">{{ book.isbn }}</div>
             <ul class="rating" data-rating="{{ book.rating }}">
                     <li class="rating__item"></li>
                     <li class="rating__item"></li>
                     <li class="rating__item"></li>
                     <li class="rating__item"></li>
                     <li class="rating__item"></li>
-                  </ul>
-                  ({{book.rating_count}} ratings)
+            </ul> 
+            ({{book.rating_count}} ratings)
+            <div class="result gr_rating">Average rating on Goodreads.com: {{gr_rating}}</div>
+            <div class="result gr_numratings">Number of ratngs: {{gr_numratings}}</div>
         </li>
-    {% endfor %}
 </ul>
 {%endblock%}

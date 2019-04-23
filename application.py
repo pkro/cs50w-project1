@@ -1,10 +1,15 @@
 import os
+import datetime
+import json
+
+import requests
+
 from flask import Flask, session, render_template, request, redirect, url_for
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from werkzeug.security import generate_password_hash, check_password_hash
-import datetime
+
 
 app = Flask(__name__)
 
@@ -22,6 +27,7 @@ Session(app)
 engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
 
+goodreads_key = 'UJohDpcwYqZUnxbdgXOUGg'
 # login form
 @app.route("/", methods=['POST', 'GET'])
 def login():
@@ -121,7 +127,10 @@ def results():
         return render_template('search.html', errors=errors)
 
     where_clause = ' AND '.join(where_clause)
-    sql = '''   SELECT books.id, title, year, authors.author, isbn, AVG(rating) FROM books 
+    sql = '''   SELECT books.id, title, year, authors.author, isbn, 
+                ROUND(ROUND(AVG(rating)*2, 0)/2, 0) as rating, 
+                count(rating) as rating_count
+                FROM books 
                 INNER JOIN authors ON books.author_id = authors.id
                 LEFT JOIN reviews ON books.id = reviews.book_id
                 WHERE ''' + where_clause + ''' 
@@ -137,24 +146,33 @@ def results():
         errors = ["No books found."]
         return render_template('search.html', errors=errors)
     else:
-        return render_template('book_results.html', books=books)
+        return render_template('book_results.html', books=books, test=str(books))
     
 
-# Book details
-@app.route("/book/<int:book_id>")
+# Book details, reviews + write own review on one page for (mostly my) convenience
+@app.route("/book/<int:book_id>", methods=['GET', 'POST'])
 def book(book_id):
-    pass
+    sql = '''   SELECT books.id, title, year, authors.author, isbn, 
+                ROUND(ROUND(AVG(rating)*2, 0)/2, 0) as rating,
+                count(rating) as rating_count
+                FROM books 
+                INNER JOIN authors ON books.author_id = authors.id
+                LEFT JOIN reviews ON books.id = reviews.book_id
+                WHERE books.id=:id 
+                GROUP BY books.id, title, author'''
+    book = db.execute(sql, {'id': book_id}).fetchone()
 
-@app.route("/write_review/<int:book_id>")
-def write_review(book_id):
-    pass
+    
+    res = requests.get("https://www.goodreads.com/book/review_counts.json", 
+                        params={"key": goodreads_key,
+                        "isbns": '978'+book.isbn})
+    res = res.json()
+    
+    gr_rating = res['books'][0]['average_rating']
+    gr_numratings = res['books'][0]['work_ratings_count']
+    
+    return render_template('book_details.html', book=book, 
+                                                gr_rating=gr_rating, 
+                                                gr_numratings=gr_numratings)
+    
 
-
-
-'''
-Optional
-'''
-# Display all books from one Author
-@app.route("/author/<int:author_id>")
-def author(author_id):
-    pass
