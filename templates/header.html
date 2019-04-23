@@ -10,7 +10,7 @@
       </div>
       <div class="col-3">
             {% if session['logged_in'] == True %}
-            Search
+            <a href={{ url_for('search') }}>New search</a>
             {% endif %}
       </div>
       <div class="col-3">
