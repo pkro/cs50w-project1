@@ -117,13 +117,16 @@ def results():
         where_clause.append("books.year >= :year_from AND books.year <= :year_to")
     
     if len(where_clause) == 0:
-        errors.append("Please fill at least one search field.")
+        errors = ["Please fill at least one search field."]
         return render_template('search.html', errors=errors)
 
     where_clause = ' AND '.join(where_clause)
-    sql = '''   SELECT books.id, title, year, authors.author, isbn FROM books 
-                RIGHT JOIN authors ON books.author_id = authors.id
-                WHERE ''' + where_clause + ' ORDER BY title ASC'
+    sql = '''   SELECT books.id, title, year, authors.author, isbn, AVG(rating) FROM books 
+                INNER JOIN authors ON books.author_id = authors.id
+                LEFT JOIN reviews ON books.id = reviews.book_id
+                WHERE ''' + where_clause + ''' 
+                GROUP BY books.id, title, author
+                ORDER BY title ASC '''
 
     books = db.execute(sql, {'title':   cols['title'], 
                             'author':   cols['author'], 
@@ -131,7 +134,7 @@ def results():
                             'year_from':year_from, 
                             'year_to':  year_to}).fetchall()
     if len(books) == 0:
-        errors.append("No books found.")
+        errors = ["No books found."]
         return render_template('search.html', errors=errors)
     else:
         return render_template('book_results.html', books=books)
