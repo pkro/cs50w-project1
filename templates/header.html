@@ -1,24 +1,25 @@
 <div class="header">
-    <div class="row">
-      <div class="col-6">
+      <nav class="navbar navbar-expand-sm navbar-light bg-light">
+            <div class="navbar-brand mr-auto">
+            <span class="navbar-logo"><img src="/static/images/icon.png" alt="Book icon"></span>
             {% if session['logged_in'] == True %}
                   Welcome back, {{ session['user_name'] }}!
             {% else %}
                   Welcome to Book-Thing!
             {% endif %}
-            
-      </div>
-      <div class="col-3">
-            {% if session['logged_in'] == True %}
-            <a href={{ url_for('search') }}>New search</a>
-            {% endif %}
-      </div>
-      <div class="col-3">
-            {% if session['logged_in'] == True %}
-            <a href={{ url_for('logout') }}>Logout</a>
-            {% else %}
-            <a href={{ url_for('registration') }}>Register</a>
-            {% endif %}
-      </div>
-    </div>
+            </div>
+            <div class="navbar-nav mr-4">
+                        {% if session['logged_in'] == True %}
+                        <a class="navbar-nav my-1" href={{ url_for('search') }}>New search</a>
+                        {% endif %}
+            </div>
+            <div class="navbar-nav"></div>
+                  {% if session['logged_in'] == True %}
+                  <a class="navbar-nav" href={{ url_for('logout') }}>Logout</a>
+                  {% else %}
+                  <a class="navbar-nav" href={{ url_for('registration') }}>Register</a>
+                  {% endif %}
+            </div>
+            </nav>
+      </nav>
 </div>
