@@ -17,8 +17,13 @@
                     <li class="rating__item"></li>
             </ul> 
             ({{book.rating_count}} ratings)
-            <div class="result gr_rating">Average rating on Goodreads.com: {{gr_rating}}</div>
-            <div class="result gr_numratings">Number of ratings: {{gr_numratings}}</div>
+
+            {% if gr_rating == None %}
+                    <div>No rating data on goodreads found or couldn't interpret server response</div>
+            {% else %}
+                <div class="result gr_rating">Average rating on Goodreads.com: {{gr_rating}}</div>
+                <div class="result gr_numratings">Number of ratings: {{gr_numratings}}</div>
+            {% endif %}
         </li>
     </ul>
 

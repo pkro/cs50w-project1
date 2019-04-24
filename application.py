@@ -169,11 +169,16 @@ def book(book_id):
     res = requests.get("https://www.goodreads.com/book/review_counts.json", 
                         params={"key": goodreads_key,
                         "isbns": '978'+book.isbn})
-    res = res.json()
+    # It seems some books have problems / no data, example in my DB: id 4503
+    try:
+        res = res.json()
     
-    gr_rating = res['books'][0]['average_rating']
-    gr_numratings = res['books'][0]['work_ratings_count']
-    
+        gr_rating = res['books'][0]['average_rating']
+        gr_numratings = res['books'][0]['work_ratings_count']
+    except Exception as e:
+        gr_rating = None
+        gr_numratings = None
+
     return render_template('book_details.html', book=book, 
                                                 reviews=reviews,
                                                 gr_rating=gr_rating, 
