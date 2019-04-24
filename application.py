@@ -4,7 +4,7 @@ import json
 
 import requests
 
-from flask import Flask, session, render_template, request, redirect, url_for
+from flask import Flask, session, render_template, request, redirect, url_for, jsonify
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -94,8 +94,6 @@ def search():
     return render_template("search.html")
 
 # Book results
-# ToDo: save last search in session and prefill form
-#       add this sites avg rating / nr of reviews and goodreads avg rating / reviews to result
 @app.route("/results", methods=["POST"])
 def results():
     use_strict = True if request.form.get('use_strict') == '1' else False
@@ -148,11 +146,33 @@ def results():
     else:
         return render_template('book_results.html', books=books, test=str(books))
     
+# Web API
+@app.route('/api/<string:isbn>', methods=['GET'])
+def api(isbn):
+    sql = '''   SELECT books.id, title, year, authors.author, isbn 
+                ,ROUND(AVG(rating), 1) as average_score
+                ,count(rating) as review_count
+                FROM books 
+                INNER JOIN authors ON books.author_id = authors.id
+                LEFT JOIN reviews ON books.id = reviews.book_id
+                WHERE isbn=:isbn 
+                GROUP BY books.id, title, author'''
+    book = db.execute(sql, {'isbn': isbn}).fetchone()
+    if book is None:
+        return render_template('404.html'), 404
+
+    book_dict = dict(book.items())
+    for e in book_dict:
+        book_dict[e] = str(book_dict[e])
+    del(book_dict['id'])
+    return jsonify(book_dict)
 
 # Book details, reviews + write own review on one page for (mostly my) convenience
 @app.route("/book/<int:book_id>", methods=['GET', 'POST'])
 def book(book_id):
-    sql = '''   SELECT books.id, title, year, authors.author, isbn, 
+    
+    sql = '''   SELECT books.id, title, year, authors.author, isbn,
+                /* get rating rounded to nearest (half) number, e.g. 3, 3.5, 5... */ 
                 ROUND(ROUND(AVG(rating)*2, 0)/2, 0) as rating,
                 count(rating) as rating_count
                 FROM books 
@@ -175,7 +195,7 @@ def book(book_id):
     
         gr_rating = res['books'][0]['average_rating']
         gr_numratings = res['books'][0]['work_ratings_count']
-    except Exception as e:
+    except Exception:
         gr_rating = None
         gr_numratings = None
 
