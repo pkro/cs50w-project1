@@ -162,6 +162,9 @@ def book(book_id):
                 GROUP BY books.id, title, author'''
     book = db.execute(sql, {'id': book_id}).fetchone()
 
+    sql = '''   SELECT * from reviews
+                WHERE book_id=:id'''
+    reviews = db.execute(sql, {'id': book_id}).fetchall()
     
     res = requests.get("https://www.goodreads.com/book/review_counts.json", 
                         params={"key": goodreads_key,
@@ -172,6 +175,7 @@ def book(book_id):
     gr_numratings = res['books'][0]['work_ratings_count']
     
     return render_template('book_details.html', book=book, 
+                                                reviews=reviews,
                                                 gr_rating=gr_rating, 
                                                 gr_numratings=gr_numratings)
     

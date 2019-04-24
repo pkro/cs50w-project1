@@ -18,7 +18,22 @@
             </ul> 
             ({{book.rating_count}} ratings)
             <div class="result gr_rating">Average rating on Goodreads.com: {{gr_rating}}</div>
-            <div class="result gr_numratings">Number of ratngs: {{gr_numratings}}</div>
+            <div class="result gr_numratings">Number of ratings: {{gr_numratings}}</div>
         </li>
-</ul>
+    </ul>
+
+    {% for review in reviews %}
+    {% if session['user_id'] == review.user_id %}
+    &RightTeeArrow; Your review:
+    {% endif %}
+        <div class="review headline">{{review.headline}}</div>
+        <ul class="rating" data-rating="{{ review.rating }}">
+                <li class="rating__item"></li>
+                <li class="rating__item"></li>
+                <li class="rating__item"></li>
+                <li class="rating__item"></li>
+                <li class="rating__item"></li>
+        </ul> 
+        <div class="review">{{review.review}}</div>
+    {% endfor %}
 {%endblock%}
