@@ -31,6 +31,9 @@ goodreads_key = 'UJohDpcwYqZUnxbdgXOUGg'
 # login form
 @app.route("/", methods=['POST', 'GET'])
 def login():
+    if session['user_id'] != None:
+        return redirect(url_for('search'))
+
     error = None
     if request.method == 'POST':
         username = request.form.get('username')
