@@ -256,15 +256,15 @@ def book(book_id):
             db.commit()
             user_review = {'rating':cols['rating'], 'review':cols['review'], 'headline':cols['headline']}
             
-            # get (updated) rating rounded to nearest (half) number, e.g. 3, 3.5, 5... */ 
-            sql = '''   SELECT ROUND(ROUND(AVG(rating)*2, 0)/2, 0) AS rating, count(rating) AS rating_count 
-                        FROM reviews
-                        WHERE book_id=:id'''
-            res = db.execute(sql, {'id': book_id, 'user_id': session['user_id']}).fetchone()
-            res = dict(res)
-            book = dict(book)
-            book['rating'] = res['rating']
-            book['rating_count'] = res['rating_count']
+    # get (updated) rating rounded to nearest (half) number, e.g. 3, 3.5, 5... */ 
+    sql = '''   SELECT ROUND(ROUND(AVG(rating)*2, 0)/2, 0) AS rating, count(rating) AS rating_count 
+                FROM reviews
+                WHERE book_id=:id'''
+    res = db.execute(sql, {'id': book_id}).fetchone()
+    res = dict(res)
+    book = dict(book)
+    book['rating'] = res['rating']
+    book['rating_count'] = res['rating_count']
 
             
     return render_template('book_details.html', book=book, 
