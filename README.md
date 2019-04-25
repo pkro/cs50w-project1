@@ -20,8 +20,11 @@ export GOODREADS_API_KEY=xxx
 Video:
 https://youtu.be/2sP4hvINlkQ
 
-Wrong colors recorded by OBS studio. Strict search at the end used incorrectly (didn't re-check the checkbox,
-"Christie" shouldn't have been found with strict search, but "Agatha Christie" should have.)
+Wrong colors recorded by OBS studio. 
+Strict search at the end used incorrectly (didn't re-check the checkbox,
+"Christie" shouldn't have been found with strict search, but "Agatha Christie" 
+should have.)
+Didn't show json api functionality (but is implemented)
 
 Files:
 .
