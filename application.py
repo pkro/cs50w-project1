@@ -149,7 +149,8 @@ def results():
                             'author':   cols['author'], 
                             'isbn':     cols['isbn'],
                             'year_from':year_from, 
-                            'year_to':  year_to}).fetchall()
+                            'year_to':  year_to,
+                            'sql': sql}).fetchall()
     if len(books) == 0:
         errors = ["No books found."]
         return render_template('search.html', errors=errors)

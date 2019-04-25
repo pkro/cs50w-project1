@@ -9,7 +9,7 @@ following the specifications layed out here:
 https://docs.cs50.net/web/2018/x/projects/1/project1.html
 
 Minor additions to the requirements:
-- Optional strict search to find books with short titles without a result mess ("it")
+- Optional strict search, for example to find books with short titles without a result mess ("it")
 - Optional year range search by using a dash (e.g. 1972-1974)
 - Star-display of averaged local reviews
 - Review of logged in user can be submitted / edited on book details page
@@ -17,12 +17,18 @@ Minor additions to the requirements:
 The goodreads API key must be stored in a shell variable:
 export GOODREADS_API_KEY=xxx
 
+Video:
+https://youtu.be/2sP4hvINlkQ
+
+Wrong colors recorded by OBS studio. Strict search at the end used incorrectly (didn't re-check the checkbox,
+"Christie" shouldn't have been found with strict search, but "Agatha Christie" should have.)
+
 Files:
 .
 ├── application.py -> the flask app containing all routes
 ├── db_setup
 │   ├── create_tables.py -> table definitions and function to create tables
-│   └── import.py -> create tables and import books.csv
+│   └── import.py -> create tables and import books.csv (should be located in same directory)
 ├── README.md -> this file
 ├── requirements.txt -> requests module added
 ├── static
