@@ -21,7 +21,7 @@ if not os.getenv("DATABASE_URL"):
 if not os.getenv("GOODREADS_API_KEY"):
     raise RuntimeError("GOODREADS_API_KEY is not set")
 
-goodreads_key = os.getenv("DATABASE_URL")
+goodreads_key = os.getenv("GOODREADS_API_KEY")
 
 # Configure session to use filesystem
 app.config["SESSION_PERMANENT"] = False
