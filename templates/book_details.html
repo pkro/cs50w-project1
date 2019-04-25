@@ -19,7 +19,7 @@
             ({{book.rating_count}} ratings)
 
             {% if gr_rating == None %}
-                    <div>No rating data on goodreads found or couldn't interpret server response</div>
+                    <div>No rating data on goodreads found or couldn't interprete server response</div>
             {% else %}
                 <div class="result gr_rating">Average rating on Goodreads.com: {{gr_rating}}</div>
                 <div class="result gr_numratings">Number of ratings: {{gr_numratings}}</div>
@@ -38,7 +38,7 @@
     </div>
     {% endif %}
     Write or edit your review:
-    {{ user_review }}
+
     <form action="{{ url_for('book', book_id=book.id) }}" method="POST">
         <div class="form-group row">
             <label class="col-2 col-form-label" for="rating">Rating:</label> 

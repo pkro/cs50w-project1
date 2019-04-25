@@ -181,15 +181,10 @@ def api(isbn):
 @app.route("/book/<int:book_id>", methods=['GET', 'POST'])
 def book(book_id):
     # get book details and local review average
-    sql = '''   SELECT books.id, title, year, authors.author, isbn,
-                /* get rating rounded to nearest (half) number, e.g. 3, 3.5, 5... */ 
-                ROUND(ROUND(AVG(rating)*2, 0)/2, 0) as rating,
-                count(rating) as rating_count
+    sql = '''   SELECT books.id, title, year, authors.author, isbn
                 FROM books 
                 INNER JOIN authors ON books.author_id = authors.id
-                LEFT JOIN reviews ON books.id = reviews.book_id
-                WHERE books.id=:id 
-                GROUP BY books.id, title, author'''
+                WHERE books.id=:id '''
     book = db.execute(sql, {'id': book_id}).fetchone()
 
     # get reviews of other users
@@ -261,6 +256,16 @@ def book(book_id):
             db.commit()
             user_review = {'rating':cols['rating'], 'review':cols['review'], 'headline':cols['headline']}
             
+            # get (updated) rating rounded to nearest (half) number, e.g. 3, 3.5, 5... */ 
+            sql = '''   SELECT ROUND(ROUND(AVG(rating)*2, 0)/2, 0) AS rating, count(rating) AS rating_count 
+                        FROM reviews
+                        WHERE book_id=:id'''
+            res = db.execute(sql, {'id': book_id, 'user_id': session['user_id']}).fetchone()
+            res = dict(res)
+            book = dict(book)
+            book['rating'] = res['rating']
+            book['rating_count'] = res['rating_count']
+
             
     return render_template('book_details.html', book=book, 
                                             reviews=reviews,
