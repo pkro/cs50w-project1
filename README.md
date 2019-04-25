@@ -14,6 +14,9 @@ Minor additions to the requirements:
 - Star-display of averaged local reviews
 - Review of logged in user can be submitted / edited on book details page
 
+The goodreads API key must be stored in a shell variable:
+export GOODREADS_API_KEY=xxx
+
 Files:
 .
 ├── application.py -> the flask app containing all routes
@@ -21,7 +24,7 @@ Files:
 │   ├── create_tables.py -> table definitions and function to create tables
 │   └── import.py -> create tables and import books.csv
 ├── README.md -> this file
-├── requirements.txt
+├── requirements.txt -> requests module added
 ├── static
 │   ├── css
 │   │   ├── style.css -> SASS-generated CSS
@@ -34,8 +37,8 @@ Files:
 │   ├── 404.html
 │   ├── book_details.html -> single book details with reviews and review form
 │   ├── book_results.html -> list of search results
-│   ├── footer.html -> Generic header with navigation / logout / search
-│   ├── header.html
+│   ├── footer.html
+│   ├── header.html -> Generic header with navigation / logout / search
 │   ├── layout.html
 │   ├── login.html
 │   ├── registration.html
