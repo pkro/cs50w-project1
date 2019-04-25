@@ -17,6 +17,12 @@ app = Flask(__name__)
 if not os.getenv("DATABASE_URL"):
     raise RuntimeError("DATABASE_URL is not set")
 
+# Check for environment variable
+if not os.getenv("GOODREADS_API_KEY"):
+    raise RuntimeError("GOODREADS_API_KEY is not set")
+
+goodreads_key = os.getenv("DATABASE_URL")
+
 # Configure session to use filesystem
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
@@ -27,11 +33,12 @@ Session(app)
 engine = create_engine(os.getenv("DATABASE_URL"))
 db = scoped_session(sessionmaker(bind=engine))
 
-goodreads_key = 'UJohDpcwYqZUnxbdgXOUGg'
+
+
 # login form
 @app.route("/", methods=['POST', 'GET'])
 def login():
-    if session['user_id'] != None:
+    if session.get('user_id'):
         return redirect(url_for('search'))
 
     error = None
@@ -173,7 +180,7 @@ def api(isbn):
 # Book details, reviews + write own review on one page for (mostly my) convenience
 @app.route("/book/<int:book_id>", methods=['GET', 'POST'])
 def book(book_id):
-    
+    # get book details and local review average
     sql = '''   SELECT books.id, title, year, authors.author, isbn,
                 /* get rating rounded to nearest (half) number, e.g. 3, 3.5, 5... */ 
                 ROUND(ROUND(AVG(rating)*2, 0)/2, 0) as rating,
@@ -185,26 +192,80 @@ def book(book_id):
                 GROUP BY books.id, title, author'''
     book = db.execute(sql, {'id': book_id}).fetchone()
 
+    # get reviews of other users
     sql = '''   SELECT * from reviews
-                WHERE book_id=:id'''
-    reviews = db.execute(sql, {'id': book_id}).fetchall()
-    
+                WHERE book_id=:id
+                AND USER_ID != :user_id'''
+    reviews = db.execute(sql, {'id': book_id, 'user_id': session['user_id']}).fetchall()
+
+    # get goodreads rating and avergage
     res = requests.get("https://www.goodreads.com/book/review_counts.json", 
                         params={"key": goodreads_key,
                         "isbns": '978'+book.isbn})
+
     # It seems some books have problems / no data, example in my DB: id 4503
     try:
         res = res.json()
-    
         gr_rating = res['books'][0]['average_rating']
         gr_numratings = res['books'][0]['work_ratings_count']
     except Exception:
         gr_rating = None
         gr_numratings = None
 
-    return render_template('book_details.html', book=book, 
+    sql = '''   SELECT rating, review, headline from reviews
+                WHERE book_id=:id
+                AND USER_ID = :user_id'''
+    user_review = db.execute(sql, {'id': book_id, 'user_id': session['user_id']}).fetchone()
+
+    if user_review == None:
+        user_review = {'rating':'0', 'review':'', 'headline':''}
+        user_review_exists = False
+    else:
+        user_review_exists = True
+
+    # review was submitted
+    if request.method == 'POST':
+        # ToDo: Rating needs to be updated to take new user rating into account
+        errors = []
+        cols = dict()
+        for col in ['rating', 'headline', 'review']:
+            cols[col] = request.form.get(col)
+            if cols[col] == '':
+                errors.append(f'Please fill in {col}')
+
+        # additional servers side check to existing bootstrap check
+        if len(errors) > 0:
+                return render_template('book_details.html', book=book, 
                                                 reviews=reviews,
+                                                user_review={'headline': cols['headline'], 'review': cols['review'], 'rating': cols['rating']},
                                                 gr_rating=gr_rating, 
-                                                gr_numratings=gr_numratings)
+                                                gr_numratings=gr_numratings,
+                                                errors=errors)
+
+        else:
+            if user_review_exists:
+                sql = '''UPDATE  reviews SET   rating=:rating,
+                                                headline=:headline, 
+                                                review=:review
+                        WHERE book_id=:book_id AND user_id=:user_id'''
+                        
+            else:
+                sql = '''INSERT INTO  reviews(book_id, user_id, rating, headline, review)
+                        VALUES (:book_id, :user_id, :rating, :headline, :review)'''
+
+            res = db.execute(sql, { 'headline': cols['headline']
+                                    ,'review': cols['review']
+                                    ,'rating': cols['rating']
+                                    ,'book_id': book_id
+                                    ,'user_id': session['user_id']})
+            db.commit()
+            user_review = {'rating':cols['rating'], 'review':cols['review'], 'headline':cols['headline']}
+            
+            
+    return render_template('book_details.html', book=book, 
+                                            reviews=reviews,
+                                            user_review=user_review,
+                                            gr_rating=gr_rating, 
+                                            gr_numratings=gr_numratings)
     
 

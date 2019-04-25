@@ -26,19 +26,63 @@
             {% endif %}
         </li>
     </ul>
+    <div class="spacer"></div>
 
-    {% for review in reviews %}
-    {% if session['user_id'] == review.user_id %}
-    &RightTeeArrow; Your review:
+    {% if errors != None %}
+    <div class="alert-warning">
+        <ul>
+            {% for err in errors %}
+                <li>{{ err }}</li>
+            {% endfor %}
+        </ul>
+    </div>
     {% endif %}
-        <div class="review headline">{{review.headline}}</div>
+    Write or edit your review:
+    {{ user_review }}
+    <form action="{{ url_for('book', book_id=book.id) }}" method="POST">
+        <div class="form-group row">
+            <label class="col-2 col-form-label" for="rating">Rating:</label> 
+            <div class="col-8">
+            <select id="rating" name="rating" required="required" class="custom-select">
+                <option value="" disabled {% if user_review.rating == '0' %}selected{% endif %}>Select your option</option>
+                <option value="1" {% if user_review.rating == '1' %}selected{% endif %}>*</option>
+                <option value="2" {% if user_review.rating == '2' %}selected{% endif %}>**</option>
+                <option value="3" {% if user_review.rating == '3' %}selected{% endif %}>***</option>
+                <option value="4" {% if user_review.rating == '4' %}selected{% endif %}>****</option>
+                <option value="5" {% if user_review.rating == '5' %}selected{% endif %}>*****</option>
+            </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="headline" class="col-2 col-form-label">Review headline:</label> 
+            <div class="col-8">
+            <input id="headline" name="headline" type="text" required="required" class="form-control" value="{{ user_review.headline }}">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="textarea" class="col-2 col-form-label">Review text:</label> 
+            <div class="col-8">
+            <textarea id="review" name="review" cols="40" rows="5" class="form-control" required="required">{{ user_review.review }}</textarea>
+            </div>
+        </div> 
+        <div class="form-group row">
+            <div class="offset-2 col-8">
+            <button name="submit" type="submit" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+    </form>
+    <div>
+    Reviews:
+    {% for review in reviews %}
         <ul class="rating" data-rating="{{ review.rating }}">
                 <li class="rating__item"></li>
                 <li class="rating__item"></li>
                 <li class="rating__item"></li>
                 <li class="rating__item"></li>
                 <li class="rating__item"></li>
-        </ul> 
+        </ul>     
+        <div class="review headline">{{review.headline}}</div>
         <div class="review">{{review.review}}</div>
     {% endfor %}
+    </div>
 {%endblock%}
